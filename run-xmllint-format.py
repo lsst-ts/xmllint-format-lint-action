@@ -38,20 +38,16 @@ class ExitStatus:
 
 def excludes_from_file(ignore_file):
     excludes = []
-    try:
-        with io.open(ignore_file, "r", encoding="utf-8") as f:
-            for line in f:
-                if line.startswith("#"):
-                    # ignore comments
-                    continue
-                pattern = line.rstrip()
-                if not pattern:
-                    # allow empty lines
-                    continue
-                excludes.append(pattern)
-    except EnvironmentError as e:
-        if e.errno != errno.ENOENT:
-            raise
+    with io.open(ignore_file, "r", encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("#"):
+                # ignore comments
+                continue
+            pattern = line.rstrip()
+            if not pattern:
+                # allow empty lines
+                continue
+            excludes.append(pattern)
     return excludes
 
 
