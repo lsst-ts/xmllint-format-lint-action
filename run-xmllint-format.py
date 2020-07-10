@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """A wrapper script around xmllint --format, suitable for linting multiple
 files and to use for continuous integration.
 
@@ -8,8 +8,6 @@ A diff output is produced and a sensible exit code is returned.
 
 Based on https://github.com/DoozyX/clang-format-lint-action.
 """
-
-from __future__ import print_function, unicode_literals
 
 import argparse
 import codecs
@@ -26,11 +24,7 @@ import traceback
 
 from functools import partial
 
-try:
-    from subprocess import DEVNULL  # py3k
-except ImportError:
-    DEVNULL = open(os.devnull, "wb")
-
+from subprocess import DEVNULL
 
 DEFAULT_EXTENSIONS = "xml"
 DEFAULT_XMLLINT_FORMAT_IGNORE = ".xmllint-format-ignore"
