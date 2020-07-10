@@ -121,11 +121,8 @@ def run_xmllint_format_diff_wrapper(args, file):
 
 
 def run_xmllint_format_diff(args, file):
-    try:
-        with io.open(file, "r", encoding="utf-8") as f:
-            original = f.readlines()
-    except IOError as exc:
-        raise DiffError(str(exc))
+    with io.open(file, "r", encoding="utf-8") as f:
+        original = f.readlines()
     invocation = ["xmllint", "--format", file]
 
     try:
@@ -137,9 +134,7 @@ def run_xmllint_format_diff(args, file):
         )
     except OSError as exc:
         raise DiffError(
-            "Command '{}' failed to start: {}".format(
-                subprocess.list2cmdline(invocation), exc
-            )
+            f"Command '{subprocess.list2cmdline(invocation)}' failed to start: {exc}"
         )
     proc_stdout = proc.stdout
     proc_stderr = proc.stderr
@@ -149,9 +144,7 @@ def run_xmllint_format_diff(args, file):
     proc.wait()
     if proc.returncode:
         raise DiffError(
-            "Command '{}' returned non-zero exit status {}".format(
-                subprocess.list2cmdline(invocation), proc.returncode
-            ),
+            f"Command '{subprocess.list2cmdline(invocation)}' returned non-zero exit status {proc.returncode}",
             errs,
         )
     return make_diff(file, original, outs), errs
@@ -200,16 +193,14 @@ def print_trouble(prog, message, use_colors):
     error_text = "error:"
     if use_colors:
         error_text = bold_red(error_text)
-    print("{}: {} {}".format(prog, error_text, message), file=sys.stderr)
+    print(f"{prog}: {error_text} {message}", file=sys.stderr)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--extensions",
-        help="comma separated list of file extensions (default: {})".format(
-            DEFAULT_EXTENSIONS
-        ),
+        help=f"comma separated list of file extensions (default: {DEFAULT_EXTENSIONS})",
         default=DEFAULT_EXTENSIONS,
     )
     parser.add_argument(
