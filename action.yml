@@ -1,0 +1,27 @@
+name: 'clang-format lint'
+author: 'Petr Kubánek'
+description: 'Github Action that check if XML files are properly formated using xmllint --format'
+branding:
+  icon: 'align-left'
+  color: 'green'
+inputs:
+  source:
+    description: 'Source folder to check formatting'
+    required: false
+    default: '.'
+  exclude:
+    description: 'Folder to exclude from formatting check'
+    required: false
+    default: 'none'
+  extensions:
+    description: 'List of extensions to check'
+    required: false
+    default: 'xml'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - --extensions ${{ inputs.extensions }}
+    - --exclude ${{ inputs.exclude }}
+    - -r
+    - ${{ inputs.source }}
