@@ -131,22 +131,15 @@ def run_xmllint_format_diff(args, file):
     invocation = ["xmllint", "--format", file]
 
     try:
-        proc = subprocess.Popen(
-            invocation,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True,
+        proc = subprocess.run(
+            invocation, capture_output=True, text=True, universal_newlines=True
         )
     except OSError as exc:
         raise DiffError(
             f"Command '{subprocess.list2cmdline(invocation)}' failed to start: {exc}"
         ) from exc
-    proc_stdout = proc.stdout
-    proc_stderr = proc.stderr
-    # hopefully the stderr pipe won't get full and block the process
-    outs = list(proc_stdout.readlines())
-    errs = list(proc_stderr.readlines())
-    proc.wait()
+    outs = proc.stdout.split("\n")
+    errs = proc.stderr.split("\n")
     if proc.returncode:
         raise DiffError(
             f"Command '{subprocess.list2cmdline(invocation)}' returned non-zero exit status {proc.returncode}",
