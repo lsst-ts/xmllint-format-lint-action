@@ -31,6 +31,12 @@ DEFAULT_XMLLINT_FORMAT_IGNORE = ".xmllint-format-ignore"
 
 
 class ExitStatus:
+    """
+    Return status. 0 for successfull check (formated files are the same as
+    commited), 1 for differences found, 2 for other errors (missing
+    xmllint,..).
+    """
+
     SUCCESS = 0
     DIFF = 1
     TROUBLE = 2
@@ -38,16 +44,19 @@ class ExitStatus:
 
 def excludes_from_file(ignore_file):
     excludes = []
-    with io.open(ignore_file, "r", encoding="utf-8") as f:
-        for line in f:
-            if line.startswith("#"):
-                # ignore comments
-                continue
-            pattern = line.rstrip()
-            if not pattern:
-                # allow empty lines
-                continue
-            excludes.append(pattern)
+    try:
+        with io.open(ignore_file, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("#"):
+                    # ignore comments
+                    continue
+                if not line:
+                    # allow empty lines
+                    continue
+                excludes.append(line)
+    except FileNotFoundError:
+        pass
     return excludes
 
 
@@ -113,7 +122,7 @@ def run_xmllint_format_diff_wrapper(args, file):
     except DiffError:
         raise
     except Exception as e:
-        raise UnexpectedError("{}: {}: {}".format(file, e.__class__.__name__, e), e)
+        raise UnexpectedError(f"run_xmllint_format_diff failed on {file}") from e
 
 
 def run_xmllint_format_diff(args, file):
@@ -131,7 +140,7 @@ def run_xmllint_format_diff(args, file):
     except OSError as exc:
         raise DiffError(
             f"Command '{subprocess.list2cmdline(invocation)}' failed to start: {exc}"
-        )
+        ) from exc
     proc_stdout = proc.stdout
     proc_stderr = proc.stderr
     # hopefully the stderr pipe won't get full and block the process
@@ -274,7 +283,7 @@ def main():
         return ExitStatus.TROUBLE
 
     if not args.quiet:
-        print("Processing %s files: %s" % (len(files), ", ".join(files)))
+        print(f"Processing {len(files)} files: {', '.join(files)}")
 
     njobs = args.j
     if njobs == 0:
